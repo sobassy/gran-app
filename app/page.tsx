@@ -1,6 +1,124 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [notifyChar, setNotifyChar] = useState<
+    BluetoothRemoteGATTCharacteristic | undefined
+  >();
+  const connect = async () => {
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ["442f1570-8a00-9a28-cbe1-e1d4212d53eb"],
+    });
+    console.log(device);
+    const server = await device.gatt?.connect();
+
+    const service = await server?.getPrimaryService(
+      "442f1570-8a00-9a28-cbe1-e1d4212d53eb"
+    );
+    console.log(service);
+    const notifyCharacteristic = await service?.getCharacteristic(
+      "442f1571-8a00-9a28-cbe1-e1d4212d53eb"
+    );
+    console.log(notifyCharacteristic);
+    const writeCharacteristic = await service?.getCharacteristic(
+      "442f1572-8a00-9a28-cbe1-e1d4212d53eb"
+    );
+    console.log(writeCharacteristic);
+    // const service = await server.getPrimaryService(
+    //   "932c32bd-0000-47a2-835a-a8d455b859dd"
+    // );
+
+    notifyCharacteristic?.addEventListener(
+      "characteristicvaluechanged",
+      (ev) => {
+        const decoder = new TextDecoder();
+        const data = decoder.decode(
+          (ev.target as BluetoothRemoteGATTCharacteristic).value
+        );
+        console.log(data);
+      }
+    );
+    await notifyCharacteristic?.startNotifications();
+    setNotifyChar(notifyCharacteristic);
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const length = 500;
+
+    console.log("loaded");
+
+    for (let index = 0; index < 20; index++) {
+      const start_rad = 0.05 * Math.PI + index * 0.1 * Math.PI;
+      const end_rad = start_rad + 0.1 * Math.PI;
+
+      // double
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = index % 2 === 0 ? "#FF0000" : "#0000FF";
+      ctx.beginPath();
+      ctx.moveTo(250, 250); // 円の中心に筆をおろす
+      ctx.arc(250, 250, 240, start_rad, end_rad, false);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // outer single
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = index % 2 === 0 ? "#000000" : "#FFFFFF";
+      ctx.beginPath();
+      ctx.moveTo(250, 250); // 円の中心に筆をおろす
+      ctx.arc(250, 250, 220, start_rad, end_rad, false);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // triple
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = index % 2 === 0 ? "#FF0000" : "#0000FF";
+      ctx.beginPath();
+      ctx.moveTo(250, 250); // 円の中心に筆をおろす
+      ctx.arc(250, 250, 140, start_rad, end_rad, false);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // inner single
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = index % 2 === 0 ? "#000000" : "#FFFFFF";
+      ctx.beginPath();
+      ctx.moveTo(250, 250); // 円の中心に筆をおろす
+      ctx.arc(250, 250, 120, start_rad, end_rad, false);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // outer bull
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = "#FF0000";
+      ctx.beginPath();
+      ctx.arc(250, 250, 30, 0, 2 * Math.PI, false);
+      ctx.fill();
+      ctx.stroke();
+
+      // inner bull
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = "#000000";
+      ctx.beginPath();
+      ctx.arc(250, 250, 10, 0, 2 * Math.PI, false);
+      ctx.fill();
+      ctx.stroke();
+    }
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
@@ -27,6 +145,9 @@ export default function Home() {
           </a>
         </div>
       </div>
+
+      <button onClick={connect}>RUN</button>
+      <canvas ref={canvasRef} width={500} height={500} />
 
       <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
         <Image
