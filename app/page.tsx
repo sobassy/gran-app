@@ -1,52 +1,77 @@
 "use client";
 
+import { Segment } from "@/services/boardinfo";
+import { Granboard } from "@/services/granboard";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [granboard, setGranboard] = useState<Granboard>();
+  const [ignoreInputs, setIgnoreInputs] = useState(false);
 
-  const [notifyChar, setNotifyChar] = useState<
-    BluetoothRemoteGATTCharacteristic | undefined
-  >();
-  const connect = async () => {
-    const device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: ["442f1570-8a00-9a28-cbe1-e1d4212d53eb"],
-    });
-    console.log(device);
-    const server = await device.gatt?.connect();
+  // const [notifyChar, setNotifyChar] = useState<
+  //   BluetoothRemoteGATTCharacteristic | undefined
+  // >();
+  // const connect = async () => {
+  //   const device = await navigator.bluetooth.requestDevice({
+  //     acceptAllDevices: true,
+  //     optionalServices: ["442f1570-8a00-9a28-cbe1-e1d4212d53eb"],
+  //   });
+  //   console.log(device);
+  //   const server = await device.gatt?.connect();
 
-    const service = await server?.getPrimaryService(
-      "442f1570-8a00-9a28-cbe1-e1d4212d53eb"
-    );
-    console.log(service);
-    const notifyCharacteristic = await service?.getCharacteristic(
-      "442f1571-8a00-9a28-cbe1-e1d4212d53eb"
-    );
-    console.log(notifyCharacteristic);
-    const writeCharacteristic = await service?.getCharacteristic(
-      "442f1572-8a00-9a28-cbe1-e1d4212d53eb"
-    );
-    console.log(writeCharacteristic);
-    // const service = await server.getPrimaryService(
-    //   "932c32bd-0000-47a2-835a-a8d455b859dd"
-    // );
+  //   const service = await server?.getPrimaryService(
+  //     "442f1570-8a00-9a28-cbe1-e1d4212d53eb"
+  //   );
+  //   console.log(service);
+  //   const notifyCharacteristic = await service?.getCharacteristic(
+  //     "442f1571-8a00-9a28-cbe1-e1d4212d53eb"
+  //   );
+  //   console.log(notifyCharacteristic);
+  //   const writeCharacteristic = await service?.getCharacteristic(
+  //     "442f1572-8a00-9a28-cbe1-e1d4212d53eb"
+  //   );
+  //   console.log(writeCharacteristic);
+  //   // const service = await server.getPrimaryService(
+  //   //   "932c32bd-0000-47a2-835a-a8d455b859dd"
+  //   // );
 
-    notifyCharacteristic?.addEventListener(
-      "characteristicvaluechanged",
-      (ev) => {
-        const decoder = new TextDecoder();
-        const data = decoder.decode(
-          (ev.target as BluetoothRemoteGATTCharacteristic).value
-        );
-        console.log(data);
+  //   notifyCharacteristic?.addEventListener(
+  //     "characteristicvaluechanged",
+  //     (ev) => {
+  //       const decoder = new TextDecoder();
+  //       const data = decoder.decode(
+  //         (ev.target as BluetoothRemoteGATTCharacteristic).value
+  //       );
+  //       console.log(data);
+  //     }
+  //   );
+  //   await notifyCharacteristic?.startNotifications();
+  //   setNotifyChar(notifyCharacteristic);
+  // };
+
+  const onSegmentHit = useCallback(
+    (segment: Segment) => {
+      // We're in a state where inputs should be ignored
+      if (ignoreInputs) {
+        return;
       }
-    );
-    await notifyCharacteristic?.startNotifications();
-    setNotifyChar(notifyCharacteristic);
-  };
 
+      console.log(segment);
+    },
+    [ignoreInputs]
+  );
+
+  useEffect(() => {
+    if (!granboard) {
+      return;
+    }
+
+    granboard.segmentHitCallback = onSegmentHit;
+  }, [granboard, onSegmentHit]);
+
+  // draw darts board
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -146,7 +171,11 @@ export default function Home() {
         </div>
       </div>
 
-      <button onClick={connect}>RUN</button>
+      <button
+        onClick={async () => setGranboard(await Granboard.ConnectToBoard())}
+      >
+        CONNECT
+      </button>
       <canvas ref={canvasRef} width={500} height={500} />
 
       <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
