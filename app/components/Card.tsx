@@ -48,9 +48,9 @@ export const GameCard: React.FC<GameCardProps> = ({
       <Image
         src={imagePath}
         alt={title}
-        width={180}
+        width={320}
         height={180}
-        className="object-contain m-auto"
+        className="object-contain m-auto rounded-t-lg"
         priority
       />
       <div className="p-5 text-center">

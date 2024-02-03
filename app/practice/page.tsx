@@ -10,7 +10,7 @@ export default function Home() {
       </div>
       <div className="grid grid-cols-3 gap-4 w-full">
         <GameCard
-          imagePath="/next.svg"
+          imagePath="/game/infinity.png"
           title="Infinity"
           href="/practice/infinity"
           category="practice"
