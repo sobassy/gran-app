@@ -7,6 +7,12 @@ This application is published as Open Source Software.
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Application image
+
+![image01](/readme-blob/image01.png)
+![image02](/readme-blob/image02.png)
+![image03](/readme-blob/image03.png)
+
 ## Getting Started
 
 ### Run locally
