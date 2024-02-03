@@ -1,7 +1,9 @@
 # Granboard Funmade Application
 
 This application is published as Open Source Software.
-Please feel free to merge your applications !!
+
+**Please feel free to merge your applications !!**
+**Welcome to App requests, Enhancements, and so on !!!!**
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
@@ -28,6 +30,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ### Connect to Granboard with callback
 
+refs: [DaDartboad](https://github.com/CJPrez/DaDartboard)
+
 1. connect to granboard
 
 ```js
@@ -37,16 +41,9 @@ const granboard = await Granboard.ConnectToBoard();
 2. bind callback
 
 ```js
-const onSegmentHit = useCallback(
-  (segment: Segment) => {
-    if (ignoreInputs) {
-      return;
-    }
-
-    console.log(segment);
-  },
-  [ignoreInputs]
-);
+const onSegmentHit = useCallback((segment: Segment) => {
+  console.log(segment);
+});
 
 granboard.segmentHitCallback = onSegmentHit;
 ```
